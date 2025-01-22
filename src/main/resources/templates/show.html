@@ -120,6 +120,7 @@
             cursor: pointer;
         }
     </style>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 </head>
 <body>
     <div class="container">
@@ -252,6 +253,54 @@
                 console.error('Error:', error);
             });
         }
+
+        // 配置微信分享
+        function configWxShare() {
+            const currentUrl = window.location.href.split('#')[0];
+            fetch(`/api/wx/share-config?url=${encodeURIComponent(currentUrl)}`)
+                .then(response => response.json())
+                .then(config => {
+                    wx.config({
+                        debug: true,
+                        appId: config.appId,
+                        timestamp: config.timestamp,
+                        nonceStr: config.nonceStr,
+                        signature: config.signature,
+                        jsApiList: [
+                            'onMenuShareTimeline',    // 使用旧版接口
+                            'onMenuShareAppMessage'   // 使用旧版接口
+                        ]
+                    });
+
+                    wx.ready(function() {
+                        // 分享到朋友圈
+                        wx.onMenuShareTimeline({
+                            title: /*[[${title}]]*/ '活动标题',
+                            link: window.location.href,
+                            imgUrl: window.location.origin + '/pic/配图2.png',
+                            success: function() {
+                                console.log('分享设置成功');
+                            }
+                        });
+
+                        // 分享给朋友
+                        wx.onMenuShareAppMessage({
+                            title: /*[[${title}]]*/ '活动标题',
+                            desc: /*[[${description}]]*/ '活动描述',
+                            link: window.location.href,
+                            imgUrl: window.location.origin + '/pic/配图2.png',
+                            success: function() {
+                                console.log('分享设置成功');
+                            }
+                        });
+                    });
+                });
+        }
+
+        // 页面加载完成后配置分享
+        window.onload = function() {
+            configWxShare();
+        };
     </script>
 </body>
 </html> 
