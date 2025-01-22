@@ -1,27 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>图片展示</title>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="${title}">活动倒计时</title>
     <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
         .container {
             max-width: 800px;
             margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             padding: 20px;
+        }
+        .activity-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .activity-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .countdown {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+        }
+        .countdown-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .activity-description {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .image-container {
+            margin-top: 30px;
         }
         img {
             width: 100%;
             margin-bottom: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.02);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="/pic/配图2.png" alt="配图2">
-        <img src="/pic/配图3.png" alt="配图3">
-        <img src="/pic/阅读大模型.png" alt="阅读大模型">
+        <div class="activity-header">
+            <div class="activity-title" th:text="${title}">活动标题</div>
+        </div>
+        
+        <div class="countdown">
+            <div class="countdown-number" id="countdown">加载中...</div>
+        </div>
+        
+        <div class="activity-description" th:text="${description}">活动描述</div>
+        
+        <div class="image-container">
+            <img src="/pic/配图2.png" alt="活动图片1">
+            <img src="/pic/配图3.png" alt="活动图片2">
+            <img src="/pic/阅读大模型.png" alt="活动图片3">
+        </div>
     </div>
+
+    <script th:inline="javascript">
+        var endDate = /*[[${endTime}]]*/ 0;
+        
+        function updateCountdown() {
+            var now = new Date().getTime();
+            var distance = endDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            var countdownElement = document.getElementById('countdown');
+            if (distance < 0) {
+                countdownElement.innerHTML = '活动已结束';
+                document.querySelector('.countdown').style.background = '#999';
+            } else {
+                countdownElement.innerHTML = 
+                    '<span>' + days + '</span> 天 ' +
+                    '<span>' + hours + '</span> 小时 ' +
+                    '<span>' + minutes + '</span> 分 ' +
+                    '<span>' + seconds + '</span> 秒';
+            }
+        }
+
+        updateCountdown();
+        var timer = setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html> 
