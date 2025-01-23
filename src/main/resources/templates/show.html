@@ -294,36 +294,51 @@
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
                 
-                // 清除画布
+                // 清除画布并绘制原图
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 绘制原图
                 ctx.drawImage(img, 0, 0);
                 
-                // 设置倒计时样式
-                ctx.fillStyle = '#ff6b6b';  // 使用红色系
-                ctx.font = 'bold 48px PingFang SC';  // 加大字号
+                // 基础位置设置
+                const textY = 2300;
+                const spacing = 200;  // 增加间距
+                
+                // 数字和文字的共同样式
                 ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 6;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
                 
-                // 在指定位置绘制倒计时
-                const textY = 2200;  // 根据图片中预留位置调整
-                const spacing = 120;  // 单位之间的间距
+                // 绘制背景圆形
+                const radius = 60;  // 圆形半径
+                ctx.fillStyle = 'rgba(255, 75, 75, 0.1)';  // 半透明红色
+                for (let i = -1.5; i <= 1.5; i += 1) {
+                    ctx.beginPath();
+                    ctx.arc(canvas.width/2 + spacing*i, textY - 30, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 
-                // 绘制时间
-                ctx.fillText(`${days}`, canvas.width/2 - spacing*1.5, textY);
-                ctx.fillText(`${hours}`, canvas.width/2 - spacing*0.5, textY);
-                ctx.fillText(`${minutes}`, canvas.width/2 + spacing*0.5, textY);
-                ctx.fillText(`${seconds}`, canvas.width/2 + spacing*1.5, textY);
+                // 绘制数字
+                ctx.fillStyle = '#FF4B4B';  // 鲜艳的红色
+                ctx.font = 'bold 80px "PingFang SC"';  // 更大的数字
+                
+                ctx.fillText(days, canvas.width/2 - spacing*1.5, textY);
+                ctx.fillText(hours, canvas.width/2 - spacing*0.5, textY);
+                ctx.fillText(minutes, canvas.width/2 + spacing*0.5, textY);
+                ctx.fillText(seconds, canvas.width/2 + spacing*1.5, textY);
                 
                 // 绘制单位文字
-                ctx.font = 'normal 24px PingFang SC';
-                ctx.fillText('天', canvas.width/2 - spacing*1.5, textY + 40);
-                ctx.fillText('时', canvas.width/2 - spacing*0.5, textY + 40);
-                ctx.fillText('分', canvas.width/2 + spacing*0.5, textY + 40);
-                ctx.fillText('秒', canvas.width/2 + spacing*1.5, textY + 40);
+                ctx.fillStyle = '#666666';  // 柔和的灰色
+                ctx.font = 'normal 32px "PingFang SC"';  // 更大的单位
+                ctx.shadowBlur = 2;  // 减小阴影
+                
+                // 单位文字和数字在同一行
+                ctx.fillText('天', canvas.width/2 - spacing*1.5 + 70, textY);
+                ctx.fillText('时', canvas.width/2 - spacing*0.5 + 70, textY);
+                ctx.fillText('分', canvas.width/2 + spacing*0.5 + 70, textY);
+                ctx.fillText('秒', canvas.width/2 + spacing*1.5 + 70, textY);
             }
             
-            // 每秒更新一次
             updateCountdown();
             setInterval(updateCountdown, 1000);
         }
