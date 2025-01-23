@@ -94,17 +94,24 @@
         .modal-content {
             position: relative;
             background: white;
-            width: 90%;
-            max-width: 500px;
+            width: 85%;
+            max-width: 400px;
             margin: 50px auto;
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             transform: translateY(20px);
             animation: slideUp 0.3s ease forwards;
+            box-sizing: border-box;
+        }
+        .form-container {
+            width: 100%;
+            padding: 0 15px;
+            box-sizing: border-box;
         }
         .form-group {
             margin-bottom: 24px;
+            width: 100%;
         }
         .form-group label {
             display: block;
@@ -114,12 +121,17 @@
             font-weight: 500;
         }
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .submit-btn {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #eee;
             border-radius: 8px;
             font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input,
+        .form-group select {
+            border: 2px solid #eee;
             transition: all 0.3s ease;
         }
         .form-group input:focus,
@@ -127,6 +139,18 @@
             border-color: #FF4B4B;
             outline: none;
             box-shadow: 0 0 0 3px rgba(255,75,75,0.1);
+        }
+        .submit-btn {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #FF4B4B 0%, #FF6B6B 100%);
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
         }
         .modal-title {
             text-align: center;
@@ -146,21 +170,6 @@
         }
         .close:hover {
             color: #FF4B4B;
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 14px 0;
-            background: linear-gradient(135deg, #FF4B4B 0%, #FF6B6B 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -198,21 +207,23 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h2 class="modal-title">报名信息</h2>
-            <div class="form-group">
-                <label>姓名</label>
-                <input type="text" id="name" placeholder="请输入您的姓名" required>
+            <div class="form-container">
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="name" placeholder="请输入您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>联系方式</label>
+                    <input type="tel" id="phone" placeholder="请输入您的手机号" required>
+                </div>
+                <div class="form-group">
+                    <label>求职意向</label>
+                    <select id="position" required>
+                        <option value="">请选择职位</option>
+                    </select>
+                </div>
+                <button class="submit-btn" onclick="submitRegistration()">提交报名</button>
             </div>
-            <div class="form-group">
-                <label>联系方式</label>
-                <input type="tel" id="phone" placeholder="请输入您的手机号" required>
-            </div>
-            <div class="form-group">
-                <label>求职意向</label>
-                <select id="position" required>
-                    <option value="">请选择职位</option>
-                </select>
-            </div>
-            <button class="submit-btn" onclick="submitRegistration()">提交报名</button>
         </div>
     </div>
 
