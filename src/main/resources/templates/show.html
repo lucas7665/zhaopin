@@ -128,10 +128,6 @@
             <div class="activity-title" th:text="${title}">活动标题</div>
         </div>
         
-        <div class="countdown">
-            <div class="countdown-number" id="countdown">加载中...</div>
-        </div>
-        
         <div class="activity-description" th:text="${description}">活动描述</div>
         
         <div class="image-container" id="imageContainer">
@@ -174,22 +170,7 @@
             var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            var countdownElement = document.getElementById('countdown');
-            if (distance < 0) {
-                countdownElement.innerHTML = '活动已结束';
-                document.querySelector('.countdown').style.background = '#999';
-            } else {
-                countdownElement.innerHTML = 
-                    '<span>' + days + '</span> 天 ' +
-                    '<span>' + hours + '</span> 小时 ' +
-                    '<span>' + minutes + '</span> 分 ' +
-                    '<span>' + seconds + '</span> 秒';
-            }
         }
-
-        updateCountdown();
-        var timer = setInterval(updateCountdown, 1000);
 
         // 加载职位列表
         fetch('/api/positions')
@@ -300,7 +281,54 @@
             configWxShare();
         };
 
-        // 加载所有图片
+        // 在图片上绘制倒计时
+        function drawCountdownOnImage(canvas, img) {
+            const ctx = canvas.getContext('2d');
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = endDate - now;
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // 清除画布
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制原图
+                ctx.drawImage(img, 0, 0);
+                
+                // 设置倒计时样式
+                ctx.fillStyle = '#ff6b6b';  // 使用红色系
+                ctx.font = 'bold 48px PingFang SC';  // 加大字号
+                ctx.textAlign = 'center';
+                
+                // 在指定位置绘制倒计时
+                const textY = 2200;  // 根据图片中预留位置调整
+                const spacing = 120;  // 单位之间的间距
+                
+                // 绘制时间
+                ctx.fillText(`${days}`, canvas.width/2 - spacing*1.5, textY);
+                ctx.fillText(`${hours}`, canvas.width/2 - spacing*0.5, textY);
+                ctx.fillText(`${minutes}`, canvas.width/2 + spacing*0.5, textY);
+                ctx.fillText(`${seconds}`, canvas.width/2 + spacing*1.5, textY);
+                
+                // 绘制单位文字
+                ctx.font = 'normal 24px PingFang SC';
+                ctx.fillText('天', canvas.width/2 - spacing*1.5, textY + 40);
+                ctx.fillText('时', canvas.width/2 - spacing*0.5, textY + 40);
+                ctx.fillText('分', canvas.width/2 + spacing*0.5, textY + 40);
+                ctx.fillText('秒', canvas.width/2 + spacing*1.5, textY + 40);
+            }
+            
+            // 每秒更新一次
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        // 加载图片并添加倒计时
         fetch('/api/images', {
             headers: {
                 'bypass-tunnel-reminder': 'true',
@@ -309,18 +337,34 @@
         })
         .then(response => response.json())
         .then(images => {
-            console.log('获取到的图片列表:', images);  // 添加调试日志
+            console.log('获取到的图片列表:', images);
             const container = document.getElementById('imageContainer');
             images.forEach(imageName => {
-                const img = document.createElement('img');
-                img.src = `/pic/${imageName}`;
-                img.alt = imageName;
-                container.appendChild(img);
-                console.log('添加图片:', imageName);  // 添加调试日志
+                if (imageName === '2025.01.22-集团-招聘长图.jpg') {
+                    // 为倒计时图片创建canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.style.width = '100%';  // 设置宽度为100%
+                    canvas.style.height = 'auto';  // 高度自适应
+                    canvas.style.marginBottom = '20px';  // 保持和其他图片一样的间距
+                    canvas.style.borderRadius = '8px';   // 保持和其他图片一样的圆角
+                    canvas.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';  // 保持阴影效果
+                    
+                    const img = new Image();
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        drawCountdownOnImage(canvas, img);
+                    };
+                    img.src = `/pic/${imageName}`;
+                    container.appendChild(canvas);
+                } else {
+                    // 其他图片保持不变
+                    const img = document.createElement('img');
+                    img.src = `/pic/${imageName}`;
+                    img.alt = imageName;
+                    container.appendChild(img);
+                }
             });
-        })
-        .catch(error => {
-            console.error('加载图片出错:', error);  // 添加错误日志
         });
     </script>
 </body>
