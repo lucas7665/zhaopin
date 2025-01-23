@@ -134,10 +134,8 @@
         
         <div class="activity-description" th:text="${description}">活动描述</div>
         
-        <div class="image-container">
-            <img src="/pic/配图2.png" alt="活动图片1">
-            <img src="/pic/配图3.png" alt="活动图片2">
-            <img src="/pic/阅读大模型.png" alt="活动图片3">
+        <div class="image-container" id="imageContainer">
+            <!-- 图片将被动态加载 -->
         </div>
     </div>
 
@@ -301,6 +299,29 @@
         window.onload = function() {
             configWxShare();
         };
+
+        // 加载所有图片
+        fetch('/api/images', {
+            headers: {
+                'bypass-tunnel-reminder': 'true',
+                'User-Agent': 'QingSongApp/1.0'
+            }
+        })
+        .then(response => response.json())
+        .then(images => {
+            console.log('获取到的图片列表:', images);  // 添加调试日志
+            const container = document.getElementById('imageContainer');
+            images.forEach(imageName => {
+                const img = document.createElement('img');
+                img.src = `/pic/${imageName}`;
+                img.alt = imageName;
+                container.appendChild(img);
+                console.log('添加图片:', imageName);  // 添加调试日志
+            });
+        })
+        .catch(error => {
+            console.error('加载图片出错:', error);  // 添加错误日志
+        });
     </script>
 </body>
 </html> 
