@@ -304,50 +304,95 @@
         // 配置微信分享
         function configWxShare() {
             const currentUrl = window.location.href.split('#')[0];
-            fetch(`/api/wx/share-config?url=${encodeURIComponent(currentUrl)}`)
-                .then(response => response.json())
-                .then(config => {
-                    wx.config({
-                        debug: true,
-                        appId: config.appId,
-                        timestamp: config.timestamp,
-                        nonceStr: config.nonceStr,
-                        signature: config.signature,
-                        jsApiList: [
-                            'onMenuShareTimeline',    // 使用旧版接口
-                            'onMenuShareAppMessage'   // 使用旧版接口
-                        ]
+            console.log('当前URL:', currentUrl);
+
+            fetch(`/api/wx/share-config?url=${encodeURIComponent(currentUrl)}`, {
+                headers: {
+                    'bypass-tunnel-reminder': 'true'
+                }
+            })
+            .then(response => response.json())
+            .then(config => {
+                console.log('获取到的分享配置:', config);
+
+                // 检查配置是否完整
+                if (!config.shareTitle || !config.shareDescription || !config.shareImage) {
+                    console.error('分享配置不完整:', config);
+                    return;
+                }
+
+                const shareData = {
+                    title: config.shareTitle,
+                    desc: config.shareDescription,
+                    link: window.location.href,
+                    imgUrl: window.location.origin + '/' + config.shareImage
+                };
+                
+                console.log('准备设置的分享数据:', shareData);
+
+                wx.config({
+                    debug: true,
+                    appId: config.appId,
+                    timestamp: config.timestamp,
+                    nonceStr: config.nonceStr,
+                    signature: config.signature,
+                    jsApiList: [
+                        'updateAppMessageShareData',
+                        'updateTimelineShareData'
+                    ]
+                });
+
+                wx.ready(function() {
+                    console.log('wx.ready被调用，开始设置分享数据');
+
+                    // 分享给朋友
+                    wx.updateAppMessageShareData({ 
+                        ...shareData,
+                        success: function () {
+                            console.log('分享给朋友设置成功，数据:', {
+                                title: decodeURIComponent(shareData.title),
+                                desc: decodeURIComponent(shareData.desc),
+                                link: shareData.link,
+                                imgUrl: shareData.imgUrl
+                            });
+                        },
+                        fail: function(res) {
+                            console.error('分享给朋友设置失败:', res);
+                            console.error('分享数据:', {
+                                title: decodeURIComponent(shareData.title),
+                                desc: decodeURIComponent(shareData.desc),
+                                link: shareData.link,
+                                imgUrl: shareData.imgUrl
+                            });
+                        }
                     });
 
-                    wx.ready(function() {
-                        // 分享到朋友圈
-                        wx.onMenuShareTimeline({
-                            title: /*[[${title}]]*/ '活动标题',
-                            link: window.location.href,
-                            imgUrl: window.location.origin + '/pic/配图2.png',
-                            success: function() {
-                                console.log('分享设置成功');
-                            }
-                        });
-
-                        // 分享给朋友
-                        wx.onMenuShareAppMessage({
-                            title: /*[[${title}]]*/ '活动标题',
-                            desc: /*[[${description}]]*/ '活动描述',
-                            link: window.location.href,
-                            imgUrl: window.location.origin + '/pic/配图2.png',
-                            success: function() {
-                                console.log('分享设置成功');
-                            }
-                        });
+                    // 分享到朋友圈
+                    wx.updateTimelineShareData({ 
+                        ...shareData,
+                        success: function () {
+                            console.log('分享到朋友圈设置成功，数据:', shareData);
+                        },
+                        fail: function(res) {
+                            console.error('分享到朋友圈设置失败:', res, '分享数据:', shareData);
+                        },
+                        complete: function(res) {
+                            console.log('分享到朋友圈设置完成:', res);
+                        }
                     });
                 });
+
+                wx.error(function(res) {
+                    console.error('微信JS-SDK配置失败:', res, '配置数据:', config);
+                });
+            })
+            .catch(error => {
+                console.error('获取分享配置失败:', error);
+            });
         }
 
-        // 页面加载完成后配置分享
-        window.onload = function() {
-            configWxShare();
-        };
+        // 确保页面加载完成后立即配置分享
+        document.addEventListener('DOMContentLoaded', configWxShare);
 
         // 在图片上绘制倒计时
         function drawCountdownOnImage(canvas, img) {

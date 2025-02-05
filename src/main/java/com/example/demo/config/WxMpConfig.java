@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WxMpConfig {
     @Value("${wechat.mp.app-id}")
-    private String appId;
+    private String appId;  // 从配置文件注入
 
     @Value("${wechat.mp.app-secret}")
-    private String appSecret;
+    private String appSecret;  // 从配置文件注入
 
     @Bean
     public WxMpService wxMpService() {
